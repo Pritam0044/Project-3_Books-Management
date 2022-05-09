@@ -40,9 +40,9 @@ const createUser = async function (req, res) {
         .status(400)
         .send({ status: false, message: "Please provide phone" });
     }
-
+     ///^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
     // Checking if phone is correct number or not i.e. no alphabet allowed//
-    if (!/^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/.test(phone)) {
+    if (!/^[6-9]\d{9}$/.test(phone)) {
       return res
         .status(400)
         .send({ status: false, message: "Please enter correct phone Number." });

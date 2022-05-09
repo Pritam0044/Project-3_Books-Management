@@ -1,6 +1,7 @@
 const userModel = require("../models/userModel");
 
 const createUser = async function (req, res) {
+  try{
     let data = req.body;
     let {title,name, phone, email,password}= data
 
@@ -28,6 +29,10 @@ const createUser = async function (req, res) {
 
     let savedData = await userModel.create(data);
     res.status(201).send({status:true, message:"user successfully created",data: savedData });
+  }
+  catch(error){
+    return res.status(500).send({ status: false, message: error.message})
+  }
   };
 
 

@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema(
       city: { type: String },
       pincode: { type: String }
     },
+    isDeleted :{type: Boolean, default:false}
   },
   { timestamp: true }
 );

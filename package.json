@@ -5,11 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-<<<<<<< HEAD
-    "start": "nodemon src/index"
-=======
      "start": "nodemon src/index"
->>>>>>> 9c50221a70cef0e985da89724a7a4a0815c71b15
   },
   "repository": {
     "type": "git",

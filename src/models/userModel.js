@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
     },
     isDeleted :{type: Boolean, default:false}
   },
-  { timestamp: true }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("user", userSchema);

@@ -7,18 +7,18 @@ const userSchema = new mongoose.Schema(
       required: "title required",
       enum: ["Mr", "Mrs", "Miss"]
     },
-    name: { type: String, required: "name required" },
-    phone: { type: String, required: "phone required", unique: true },
+    name: { type: String, required: "name is required" },
+    phone: { type: String, required: "phone is required", unique: true },
     email: {
       type: String,
-      required: "email required",
+      required: "email is required",
       unique: true
     },
     password: {
       type: String,
-      required: "password required",
-      minLen: 8,
-      maxLen: 15
+      required: "password is required",
+      minLength: 8,
+      maxLength: 15
     },
     address: {
       street: { type: String },
@@ -30,4 +30,4 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model("User", userSchema);

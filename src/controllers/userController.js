@@ -1,66 +1,201 @@
 const userModel = require("../models/userModel");
+const jwt = require("jsonwebtoken");
 
 const createUser = async function (req, res) {
   try {
     const data = req.body;
-    const { title, name, phone, email, password } = data
+    const { title, name, phone, email, password } = data; // destructuring of data object
 
+    // Checking if title is sent through body or not//
+    if (!title) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please provide title" });
+    }
 
-    if (!title) { return res.status(400).send({ status: false, message: "Please provide title" }) }
-    if (!/^(Miss|Mr|Mrs)$/.test(title)) { return res.status(400).send({ status: false, message: "Please enter correct title." }) }
+    // Checking if title is sent through body or not//
+    if (!/^(Miss|Mr|Mrs)$/.test(title)) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please enter correct title." });
+    }
 
-    if (!name) { return res.status(400).send({ status: false, message: "Please provide name" }) }
-    if (!/^(\w+)( )(\w+)*(( )(\w+))?$/.test(name)) { return res.status(400).send({ status: false, message: "Please enter correct name." }) }
+    // Checking if name is sent through body or not//
+    if (!name) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please provide name" });
+    }
 
-    if (!phone) { return res.status(400).send({ status: false, message: "Please provide phone" }) }
-    if (!/^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/.test(phone)) { return res.status(400).send({ status: false, message: "Please enter correct phone Number." }) }
-    const duplicatephone = await userModel.findOne({ phone: phone, isDeleted: false })
-    if (duplicatephone) { return res.status(409).send({ status: false, message: "User with this phone already exist" }) }
+    // Checking if name is correct name or not i.e. no digit allowed//
+    if (!/^(\w+)( )(\w+)*(( )(\w+))?$/.test(name)) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please enter correct name." });
+    }
 
-    if (!email) { return res.status(400).send({ status: false, message: "Please provide email" }) }
-    if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) { return res.status(400).send({ status: false, message: "Please enter correct email." }) }
-    const duplicateEmail = await userModel.findOne({ email: email, isDeleted: false })
-    if (duplicateEmail) { return res.status(409).send({ status: false, message: "User with this email already exist" }) }
+    // Checking if phone is sent through body or not//
+    if (!phone) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please provide phone" });
+    }
 
-    if (!password) { return res.status(400).send({ status: false, message: "Please provide password" }) }
-    if (password.trim().length < 8) { return res.status(400).send({ status: false, message: "Password must be eight character long." }); }
-    if (password.trim().length > 15) { return res.status(400).send({ status: false, message: "Password must be fifteen character long." }); }
+    // Checking if phone is correct number or not i.e. no alphabet allowed//
+    if (!/^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/.test(phone)) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please enter correct phone Number." });
+    }
 
+    // Checking if user with this phone number already exist in database//
+    const duplicatephone = await userModel.findOne({
+      phone: phone,
+      isDeleted: false,
+    });
+    if (duplicatephone) {
+      return res
+        .status(409)
+        .send({ status: false, message: "User with this phone already exist" });
+    }
 
+    // Checking if email is sent through body or not//
+    if (!email) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please provide email" });
+    }
+
+    // Checking if email is valid or not //
+    if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please enter correct email." });
+    }
+
+    // Checking if user with this email already exist in database//
+    const duplicateEmail = await userModel.findOne({
+      email: email,
+      isDeleted: false,
+    });
+    if (duplicateEmail) {
+      return res
+        .status(409)
+        .send({ status: false, message: "User with this email already exist" });
+    }
+
+    // Checking if password is sent through body or not//
+    if (!password) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please provide password" });
+    }
+
+    // checking minimum length of password//
+    if (password.trim().length < 8) {
+      return res.status(400).send({
+        status: false,
+        message: "Password must be eight character long.",
+      });
+    }
+
+      // checking maximum length of password//
+    if (password.trim().length > 15) {
+      return res.status(400).send({
+        status: false,
+        message: "Password must be fifteen character long.",
+      });
+    }
+
+    // creation of new document in db//
     const savedData = await userModel.create(data);
-    res.status(201).send({ status: true, message: "user successfully created", data: savedData });
-  }
-  catch (error) {
-    return res.status(500).send({ status: false, message: error.message })
+    res.status(201).send({
+      status: true,
+      message: "Success",
+      data: savedData,
+    });
+  } catch (error) {
+    return res.status(500).send({ status: false, message: error.message });
   }
 };
 
-
 const loginUser = async function (req, res) {
   try {
-    const data = req.body
-    const { email, password } = data
-    if (!email) return res.status(400).send({ status: false, message: "email is missing" })
-    if (!password) return res.status(400).send({ status: false, message: "password is missing" })
+    const data = req.body;
+    const { email, password } = data;
 
-    const findUser = await userModel.findOne({ email: email, password: password, isDeleted: false })
+    // Checking if email is sent through body or not//
+    if (!email)
+      return res
+        .status(400)
+        .send({ status: false, message: "email is missing" });
 
-    if (!findUser) return res.status(404).send({ Status: false, message: " user does not exists" })
+    // Checking if email is valid or not //
+    if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please enter correct email." });
+    }
 
-    const token = jwt.sign({ userId: findUser._id.toString() }, "Books Management", { expiresIn: "1d" })
+    // Checking if user with this email already exist in database//
+    const duplicateEmail = await userModel.findOne({
+      email: email,
+      isDeleted: false,
+    });
+    if (duplicateEmail) {
+      return res
+        .status(409)
+        .send({ status: false, message: "User with this email already exist" });
+    }
 
-    res.setHeader("project-3-token", token)
-    res.status(201).send({ Status: true, Token: token })
+    // Checking if password is sent through body or not//
+    if (!password)
+      return res
+        .status(400)
+        .send({ status: false, message: "password is missing" });
 
+        
+    // checking minimum length of password//
+    if (password.trim().length < 8) {
+      return res.status(400).send({
+        status: false,
+        message: "Password must be eight character long.",
+      });
+    }
+ 
+    // checking maximum length of password//
+    if (password.trim().length > 15) {
+      return res.status(400).send({
+        status: false,
+        message: "Password must be fifteen character long.",
+      });
+    }
+
+    //finding a user in db with above credentials//
+    const findUser = await userModel.findOne({
+      email: email,
+      password: password,
+      isDeleted: false,
+    });
+
+    if (!findUser)
+      return res
+        .status(404)
+        .send({ Status: false, message: " user does not exists" });
+
+    const token = jwt.sign(
+      { userId: findUser._id.toString() },
+      "Books Management",
+      { expiresIn: "1d" }
+    );
+
+    return res
+      .status(201)
+      .send({ Status: true, message: "Success", data: token });
   } catch (error) {
-
-    res.status(500).send({ status: false, message: error.message })
-
+    res.status(500).send({ status: false, message: error.message });
   }
-}
+};
 
-
-
-module.exports.loginUser = loginUser
-
-module.exports.createUser = createUser
+module.exports.loginUser = loginUser;
+module.exports.createUser = createUser;

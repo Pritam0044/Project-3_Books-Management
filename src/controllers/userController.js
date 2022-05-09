@@ -95,7 +95,7 @@ const createUser = async function (req, res) {
     if (password.trim().length < 8) {
       return res.status(400).send({
         status: false,
-        message: "Password must be eight character long.",
+        message: "Password must be atleast eight character long.",
       });
     }
 
@@ -103,16 +103,16 @@ const createUser = async function (req, res) {
     if (password.trim().length > 15) {
       return res.status(400).send({
         status: false,
-        message: "Password must be fifteen character long.",
+        message: "Password must be atmost fifteen character long.",
       });
     }
 
     // creation of new document in db//
-    const savedData = await userModel.create(data);
+    const userCreated = await userModel.create(data);
     res.status(201).send({
       status: true,
       message: "Success",
-      data: savedData,
+      data: userCreated,
     });
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message });
@@ -137,17 +137,6 @@ const loginUser = async function (req, res) {
         .send({ status: false, message: "Please enter correct email." });
     }
 
-    // Checking if user with this email already exist in database//
-    const duplicateEmail = await userModel.findOne({
-      email: email,
-      isDeleted: false,
-    });
-    if (duplicateEmail) {
-      return res
-        .status(409)
-        .send({ status: false, message: "User with this email already exist" });
-    }
-
     // Checking if password is sent through body or not//
     if (!password)
       return res
@@ -159,7 +148,7 @@ const loginUser = async function (req, res) {
     if (password.trim().length < 8) {
       return res.status(400).send({
         status: false,
-        message: "Password must be eight character long.",
+        message: "Password must be atleast eight character long.",
       });
     }
  
@@ -167,7 +156,7 @@ const loginUser = async function (req, res) {
     if (password.trim().length > 15) {
       return res.status(400).send({
         status: false,
-        message: "Password must be fifteen character long.",
+        message: "Password must be atmost fifteen character long.",
       });
     }
 

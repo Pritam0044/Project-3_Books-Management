@@ -91,22 +91,12 @@ const createUser = async function (req, res) {
         .send({ status: false, message: "Please provide password" });
     }
 
-    // checking minimum length of password//
-    if (password.trim().length < 8) {
-      return res.status(400).send({
-        status: false,
-        message: "Password must be atleast eight character long.",
-      });
-    }
 
-      // checking maximum length of password//
-    if (password.trim().length > 15) {
-      return res.status(400).send({
-        status: false,
-        message: "Password must be atmost fifteen character long.",
-      });
-    }
 
+    // checking password with regex //
+    if (!/^([a-zA-Z0-9!@#$%^&*_\-+=><]{8,15})$/.test(password)) { return res.status(400).send({ status: false, message: "Please provide a valid password between 8 to 15 character length." }) }
+    
+  
     // creation of new document in db//
     const userCreated = await userModel.create(data);
     res.status(201).send({

@@ -1,0 +1,19 @@
+{
+  "name": "project3-group29",
+  "version": "1.0.0",
+  "description": "Book Management Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PranayRaut-01/Project3-Group29.git"
+  },
+  "author": "Group 29",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PranayRaut-01/Project3-Group29/issues"
+  },
+  "homepage": "https://github.com/PranayRaut-01/Project3-Group29#readme"
+}

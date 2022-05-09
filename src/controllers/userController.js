@@ -28,7 +28,8 @@ const createUser = async function (req, res) {
     }
 
     // Checking if name is correct name or not i.e. no digit allowed//
-    if (!/^(\w+)*(( )(\w+))?$/.test(name)) {
+    // if (!/^(\w+)( )(\w+)*(( )(\w+))?$/.test(name)) {
+    if (!/^(\w+)( )?(( )(\w+))*$/.test(name)) {
       return res
         .status(400)
         .send({ status: false, message: "Please enter correct name." });
@@ -137,16 +138,14 @@ const loginUser = async function (req, res) {
         .send({ status: false, message: "Please enter correct email." });
     }
 
-    // Checking if user with this email already exist in database//
-    const duplicateEmail = await userModel.findOne({
-      email: email,
-      isDeleted: false,
-    });
-    if (duplicateEmail) {
-      return res
-        .status(409)
-        .send({ status: false, message: "User with this email already exist" });
-    }
+    // // Checking if user with this email already exist in database//
+    // const emailCheck = await userModel.findOne({email: email,isDeleted: false,});
+    // console.log(emailCheck)
+    // if (!emailCheck) {
+    //   return res
+    //     .status(409)
+    //     .send({ status: false, message: "email or password is not correct" });
+    // }
 
     // Checking if password is sent through body or not//
     if (!password)

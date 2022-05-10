@@ -225,7 +225,35 @@ const updateBook = async function (req,res){
   catch(error){ res.status(500).send({status:false, message:error.message})}
 }
 
+
+
+const delBook = async function (req, res) {
+
+  try {
+
+    const bookId = req.params.bookId
+
+    const checkBook = await bookModel.findOne({ _id: bookId, isDeleted: true })
+
+    if (checkBook) return res.status(404).send({ status: false, message: "this book has been already deleted" })
+
+    const findBook = await bookModel.findByIdAndUpdate({ _id: bookId, isDeleted: false }, { $set: { isDeleted: true ,deletedAt: new Date()} })
+
+    return res.status(200).send({ status: true, message: "this book is deleted now " })
+
+  } catch (error) {
+
+    return res.status(500).send({ status: false, message: error.message })
+
+  }
+}
+
+
+
+
 module.exports.createBook = createBook
 module.exports.getBook = getBook;
 module.exports.getBookByPathParam = getBookByPathParam;
 module.exports.updateBook = updateBook
+
+module.exports.delBook = delBook

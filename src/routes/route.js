@@ -14,6 +14,7 @@ router.post('/books',bookController.createBook)
 router.get ('/books',bookController.getBook)
 router.get ('/books/:bookId',bookController.getBookByPathParam)
 router.put('/books/:bookId',bookController.updateBook)
+router.delete("/books/:bookId",bookController.delBook)
 
 ///////////////// [ EXPRORTED ROUTHER ] /////////////////
 module.exports = router;

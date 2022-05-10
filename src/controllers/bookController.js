@@ -56,7 +56,7 @@ const updateBook = async function (req,res){
       if(!title || !excerpt || !releaseDate || !ISBN ){return res.status(400).send({status:false,message:"please enter full details to update book"})}
      
       
-      let dbData = await bookModel.findOne({title:title,ISBN:ISBN, isDeleted:false})
+      let dbData = await bookModel.find({$and:[{title:title,ISBN:ISBN, isDeleted:false}]})
       if(dbData.length != 0){return res.status(409).send({status:false,msg:"Title and ISBN should be unique, hence can't update."})}
       let bookData = await bookModel.findOneAndUpdate({_id:paramData, isDeleted:false},{title:title, excerpt:excerpt,releasedAt:releaseDate,ISBN:ISBN},{new:true})
 

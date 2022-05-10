@@ -1,5 +1,7 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
+
 ObjectId = mongoose.Schema.Types.ObjectId
+
 const bookSchema = new mongoose.Schema(
 { 
     title: {type:String, required:"title is required", unique:true},
@@ -11,10 +13,7 @@ const bookSchema = new mongoose.Schema(
     reviews: {type:Number, default: 0, comment:" Holds number of reviews of this book"},
     deletedAt: {Date}, 
     isDeleted: {type:Boolean, default: false},
-    releasedAt: {required:"releasedAt is required",date:{
-        type:String,
-        format:Date
-    }},
+    releasedAt: {type:Date, required:"releasedAt is required"},
   },
   {timestamps:true})
 

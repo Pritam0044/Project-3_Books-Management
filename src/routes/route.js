@@ -11,6 +11,7 @@ router.post('/register',userController.createUser)
 
 router.post('/login',userController.loginUser)
 router.post('/books',bookController.createBook)
+router.put('/books/:bookId',bookController.updateBook)
 
 ///////////////// [ EXPRORTED ROUTHER ] /////////////////
 module.exports = router;

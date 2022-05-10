@@ -116,17 +116,16 @@ const getBook = async function (req, res) {
   }
 };
 
-
 //get API for book with Path param//
 
 const getBookByPathParam = async function (req, res) {
   try {
     const bookId = req.params.bookId;
 
-    // if (!bookId)
-    //   return res
-    //     .status(400)
-    //     .send({ status: false, message: "bookId is required in path param" });
+    if (!bookId)
+      return res
+        .status(400)
+        .send({ status: false, message: "bookId is required in path param" });
 
     if (bookId) {
       if (!mongoose.Types.ObjectId.isValid(bookId)) {
@@ -136,73 +135,42 @@ const getBookByPathParam = async function (req, res) {
       }
     }
 
-    const bookRequested = await bookModel.findOne({
-      _id: bookId
-   
-    });
+    const bookRequested = await bookModel.findById(bookId);
 
     if (!bookRequested)
       return res
         .status(404)
         .send({ status: false, message: "no book with this id found" });
 
+    const reviewsForBook = await reviewModel.find({ bookId: bookId });
 
-const{_id,title,excerpt,userId,ISBN,category,subcategory,reviews,isDeleted,deletedAt,releasedAt,createdAt,updatedAt} = bookRequested
+    const isDeleted = bookRequested.isDeleted
 
-const reviewsForBook= await reviewModel.find({bookId:bookId})
+    if (isDeleted == false) {
+      const newdata = {
+        ...bookRequested._doc,
+        reviewData: reviewsForBook,
+      };
 
-if(isDeleted==false){
-const newOb = {
-  _id:_id,
-  title:title,
-  excerpt:excerpt,
-  userId:userId,
-  ISBN:ISBN,
-  category:category,
-  subcategory:subcategory,
-  isDeleted:isDeleted,
-  reviews:reviews,
-  releasedAt:releasedAt,
-  createdAt:createdAt,
-  updatedAt:updatedAt,
-  reviewData:reviewsForBook
+      return res
+        .status(200)
+        .send({ status: true, message: "Success", data: newdata });
+    }
 
-}   
- return res.status(200).send({ status: true,message:"Success", data: newOb });
-}
-
-if(isDeleted==true){
-
-  const newOb = {
-    _id:_id,
-    title:title,
-    excerpt:excerpt,
-    userId:userId,
-    ISBN:ISBN,
-    category:category,
-    subcategory:subcategory,
-    isDeleted:isDeleted,
-    deletedAt:deletedAt,
-    reviews:reviews,
-    releasedAt:releasedAt,
-    createdAt:createdAt,
-    updatedAt:updatedAt,
-    reviewData:reviewsForBook
-  
-  }   
-   return res.status(200).send({ status: true,message:"Success", data: newOb });
-
-
-
-}
-
-
-
-
+    if (isDeleted == true) {
+      const newdata = {
+        ...bookRequested._doc,
+        reviewData: reviewsForBook,
+      };
+      return res
+        .status(200)
+        .send({ status: true, message: "Success", data: newdata });
+    }
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message });
   }
 };
+module.exports.getBookByPathParam = getBookByPathParam;
 
 
 

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bookModel = require("../models/BooksModel");
 const userModel = require("../models/userModel");
+const reviewModel = require("../models/reviewModel");
 
 const isValidObjectId = function(ObjectId)  {
     return mongoose.Types.ObjectId.isValid(ObjectId);
@@ -45,6 +46,165 @@ return res.status(500).send({ status:false,message:err.message })
 }
 }
 
+//get API for book with Query param//
+
+const getBook = async function (req, res) {
+  try {
+    const queryDetails = req.query;
+
+    if (Object.keys(queryDetails).length == 0) {
+      const bookFetched = await bookModel
+        .find({ isDeleted: false })
+        .select({
+          ISBN: 0,
+          subcategory: 0,
+          isDeleted: 0,
+          createdAt: 0,
+          updatedAt: 0,
+          __v: 0,
+        })
+        .sort({ title: 1 });
+
+      if (bookFetched.length != 0)
+        return res
+          .status(200)
+          .send({ status: true, message: "Book List", data: bookFetched });
+
+      if (bookFetched.length == 0)
+        return res
+          .status(404)
+          .send({ status: false, message: "No book found" });
+    }
+
+    //Adding new key in queryDetails object//
+    queryDetails.isDeleted = false;
+
+    //// check validaion of userId///////////
+    const userId = queryDetails.userId;
+    if (userId) {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res
+          .status(400)
+          .send({ status: false, message: "Provide valid userId" });
+      }
+    }
+
+    //finding books which satisfies the given queries//
+    const specificBooks = await bookModel
+      .find(queryDetails)
+      .select({
+        ISBN: 0,
+        subcategory: 0,
+        isDeleted: 0,
+        createdAt: 0,
+        updatedAt: 0,
+        __v: 0,
+      })
+      .sort({ title: 1 });
+
+    if (specificBooks.length == 0)
+      return res
+        .status(404)
+        .send({ status: false, message: "No books found with given queries" });
+
+    if (specificBooks.length != 0)
+      return res
+        .status(200)
+        .send({ status: true, message: "Book List", data: specificBooks });
+  } catch (error) {
+    return res.status(500).send({ status: false, message: error.message });
+  }
+};
+
+
+//get API for book with Path param//
+
+const getBookByPathParam = async function (req, res) {
+  try {
+    const bookId = req.params.bookId;
+
+    // if (!bookId)
+    //   return res
+    //     .status(400)
+    //     .send({ status: false, message: "bookId is required in path param" });
+
+    if (bookId) {
+      if (!mongoose.Types.ObjectId.isValid(bookId)) {
+        return res
+          .status(400)
+          .send({ status: false, message: "Provide valid bookId" });
+      }
+    }
+
+    const bookRequested = await bookModel.findOne({
+      _id: bookId
+   
+    });
+
+    if (!bookRequested)
+      return res
+        .status(404)
+        .send({ status: false, message: "no book with this id found" });
+
+
+const{_id,title,excerpt,userId,ISBN,category,subcategory,reviews,isDeleted,deletedAt,releasedAt,createdAt,updatedAt} = bookRequested
+
+const reviewsForBook= await reviewModel.find({bookId:bookId})
+
+if(isDeleted==false){
+const newOb = {
+  _id:_id,
+  title:title,
+  excerpt:excerpt,
+  userId:userId,
+  ISBN:ISBN,
+  category:category,
+  subcategory:subcategory,
+  isDeleted:isDeleted,
+  reviews:reviews,
+  releasedAt:releasedAt,
+  createdAt:createdAt,
+  updatedAt:updatedAt,
+  reviewData:reviewsForBook
+
+}   
+ return res.status(200).send({ status: true,message:"Success", data: newOb });
+}
+
+if(isDeleted==true){
+
+  const newOb = {
+    _id:_id,
+    title:title,
+    excerpt:excerpt,
+    userId:userId,
+    ISBN:ISBN,
+    category:category,
+    subcategory:subcategory,
+    isDeleted:isDeleted,
+    deletedAt:deletedAt,
+    reviews:reviews,
+    releasedAt:releasedAt,
+    createdAt:createdAt,
+    updatedAt:updatedAt,
+    reviewData:reviewsForBook
+  
+  }   
+   return res.status(200).send({ status: true,message:"Success", data: newOb });
+
+
+
+}
+
+
+
+
+  } catch (error) {
+    return res.status(500).send({ status: false, message: error.message });
+  }
+};
+
+
 
 const updateBook = async function (req,res){
   try{
@@ -66,4 +226,6 @@ const updateBook = async function (req,res){
 }
 
 module.exports.createBook = createBook
+module.exports.getBook = getBook;
+module.exports.getBookByPathParam = getBookByPathParam;
 module.exports.updateBook = updateBook

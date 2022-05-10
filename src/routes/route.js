@@ -11,6 +11,8 @@ router.post('/register',userController.createUser)
 
 router.post('/login',userController.loginUser)
 router.post('/books',bookController.createBook)
+router.get ('/books',bookController.getBook)
+router.get ('/books/:bookId',bookController.getBookByPathParam)
 router.put('/books/:bookId',bookController.updateBook)
 
 ///////////////// [ EXPRORTED ROUTHER ] /////////////////

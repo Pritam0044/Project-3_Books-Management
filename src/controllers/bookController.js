@@ -22,7 +22,7 @@ if (Object.keys(data).length==0) return res.status(400).send({status:false, mess
   if(!userId) return res.status(400).send({status:false, message:"please provide userId"})
   if(!isValidObjectId(userId)) {
     return res.status(400).send({ status: false, message: "please provide valid userId" })}
-let validUserId = await userModel.findOne({_id:userId, isDeleated:false})
+let validUserId = await userModel.findById({_id:userId, isDeleated:false})
 if(!validUserId) return res.status(404).send({status:false, message:"no user exist in database"})
   if(!ISBN) return res.status(400).send({status:false, message:"please provide ISBN"})
   const ISBNregex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/

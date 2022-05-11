@@ -50,15 +50,6 @@ const createReview = async function (req, res) {
 
 
 
-
-const reviewModel = require("../models/reviewModel");
-const bookModel = require("../models/BooksModel");
-const mongoose = require("mongoose");
-
-const isValidObjectId = function (ObjectId) {
-  return mongoose.Types.ObjectId.isValid(ObjectId);
-};
-
 ////////////////////////////////////Update API ///////////////////////////
 const updateReview = async function (req, res) {
   try {

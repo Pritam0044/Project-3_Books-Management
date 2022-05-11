@@ -4,6 +4,7 @@ const router = express.Router();
 ///////////////// [ IMPORTED CONTROLLERS ] /////////////////
 const userController= require("../controllers/userController");
 const bookController = require("../controllers/bookController")
+const reviewController = require("../controllers/reviewController")
 
 
 ///////////////// [ ALL API's HERE ] /////////////////

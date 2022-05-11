@@ -10,7 +10,7 @@ const bookSchema = new mongoose.Schema(
     ISBN: {type:String, required:"ISBN is required", unique:true},
     category: {type:String, required:"category is required"},
     subcategory: {type:[String], required:"subcategory is required"},
-    reviews: {type:Number, default: 0, comment:" Holds number of reviews of this book"},
+    reviews: {type:Number, default: 0 },
     deletedAt: {Date}, 
     isDeleted: {type:Boolean, default: false},
     releasedAt: {type:Date, required:"releasedAt is required"},

@@ -18,6 +18,7 @@ router.put('/books/:bookId',bookController.updateBook)
 router.delete("/books/:bookId",bookController.delBook)
 
 router.post("/books/:bookId/review",reviewController.createReview)
+router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReviews)
 
 ///////////////// [ EXPRORTED ROUTHER ] /////////////////
 module.exports = router;

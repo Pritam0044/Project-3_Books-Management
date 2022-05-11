@@ -28,7 +28,7 @@ const createUser = async function (req, res) {
     }
 
     // Checking if name is correct name or not i.e. no digit allowed//
- if (!/^(\w+)( )?(( )(\w+))*$/.test(name)) {
+ if (/\d/.test(name)) {
       return res
         .status(400)
         .send({ status: false, message: "Please enter correct name." });

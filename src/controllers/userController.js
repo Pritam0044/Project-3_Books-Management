@@ -40,8 +40,7 @@ const createUser = async function (req, res) {
         .status(400)
         .send({ status: false, message: "Please provide phone" });
     }
-     ///^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
-    // Checking if phone is correct number or not i.e. no alphabet allowed//
+    
     if (!/^[6-9]\d{9}$/.test(phone)) {
       return res
         .status(400)
@@ -134,7 +133,6 @@ const loginUser = async function (req, res) {
         .send({ status: false, message: "password is missing" });
 
         
-
     // checking password with regex //
     if (!/^([a-zA-Z0-9!@#$%^&*_\-+=><]{8,15})$/.test(password)) { 
       return res.status(400).send({ status: false, message: "Please provide a valid password between 8 to 15 character length." }) 
@@ -153,11 +151,11 @@ const loginUser = async function (req, res) {
         .send({ Status: false, message: " user does not exists" });
 
     const token = jwt.sign(
-      { userId: findUser._id.toString() },
+      { userId:findUser._id.toString() },
       "Books Management",
       { expiresIn: "1d" }
     );
-
+ 
     return res
       .status(201)
       .send({ Status: true, message: "Success", data: token });

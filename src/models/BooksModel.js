@@ -14,7 +14,7 @@ const bookSchema = new mongoose.Schema(
     userId: { type: ObjectId, required: "userId is required", ref: "User" },
     ISBN: { type: String, required: "ISBN is required", unique: true },
     category: { type: String, required: "category is required" },
-    subcategory: { type: [String], required: "subcategory is required" },
+    subcategory: { type: [String], required: "subcategory is required" ,trim:true},
     reviews: {
       type: Number,
       default: 0,

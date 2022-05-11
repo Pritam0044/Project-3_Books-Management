@@ -133,9 +133,11 @@ const loginUser = async function (req, res) {
         .send({ status: false, message: "password is missing" });
 
         
-    // checking minimum length and maximum length of password//
-    if (!/^([a-zA-Z0-9!@#$%^&*_\-+=><]{8,15})$/.test(password)) { return res.status(400).send({ status: false, message: "Please provide a valid password between 8 to 15 character length." }) }
-
+    // checking password with regex //
+    if (!/^([a-zA-Z0-9!@#$%^&*_\-+=><]{8,15})$/.test(password)) { 
+      return res.status(400).send({ status: false, message: "Please provide a valid password between 8 to 15 character length." }) 
+    }
+    
     //finding a user in db with above credentials//
     const findUser = await userModel.findOne({
       email: email,
@@ -157,7 +159,8 @@ const loginUser = async function (req, res) {
     return res
       .status(201)
       .send({ Status: true, message: "Success", data: token });
-  } catch (error) {
+  }
+   catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }
 };

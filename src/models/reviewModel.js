@@ -14,7 +14,7 @@ const reviewSchema = new mongoose.Schema(
       default: "Guest",
     },
     reviewedAt: { type: Date, required: "reviewedAt is required" },
-    rating: { type: Number, required: "rating is required", minLen:1, maxlen:5},
+    rating: { type: Number, required: "rating is required" },
     review: { type: String },
     isDeleted: { type: Boolean, default: false },
   },

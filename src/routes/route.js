@@ -4,7 +4,7 @@ const router = express.Router();
 ///////////////// [ IMPORTED CONTROLLERS ] /////////////////
 const userController= require("../controllers/userController");
 const bookController = require("../controllers/bookController")
-const reviewController = require('../controllers/reviewContrller')
+const reviewController = require("../controllers/reviewController")
 
 
 ///////////////// [ ALL API's HERE ] /////////////////
@@ -17,6 +17,7 @@ router.get ('/books/:bookId',bookController.getBookByPathParam)
 router.put('/books/:bookId',bookController.updateBook)
 router.delete("/books/:bookId",bookController.delBook)
 
+router.post("/books/:bookId/review",reviewController.createReview)
 router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReviews)
 
 ///////////////// [ EXPRORTED ROUTHER ] /////////////////

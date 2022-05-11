@@ -14,9 +14,9 @@ const deleteReviews = async function (req,res){
         if (bookData.length == 0){return res.status(404).send({status:false, message:"Book doesn't exist."})}
         if(!reviewData){return res.status(404).send({status:false,message:"Book review doesn't exist."})}
 
-        const dataDeleted = await reviewModel.findById(reviewId).select({isDeleted:true,_id:false})
+        // const dataDeleted = await reviewModel.findById(reviewId).select({isDeleted:true,_id:false})
 
-        if (dataDeleted.isDeleted == true){return res.status(400).send({status:false,message:"The requested review has already been deleted."})}
+        if (reviewData.isDeleted == true){return res.status(400).send({status:false,message:"The requested review has already been deleted."})}
 
         await reviewModel.findOneAndUpdate({_id:reviewId},{$set:{isDeleted:true}})
 

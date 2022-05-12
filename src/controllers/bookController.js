@@ -11,12 +11,7 @@ const createBook = async function (req, res) {
   try {
     const data = req.body;
 
-    if (Object.keys(data).length == 0)
-      return res
-        .status(400)
-        .send({ status: false, message: "please provide data" });
-
-    const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } =
+    const { title, excerpt, ISBN, category, subcategory, releasedAt } =
       data;
 
     if (!title)
@@ -37,24 +32,7 @@ const createBook = async function (req, res) {
         .status(400)
         .send({ status: false, message: "please provide excerpt" });
 
-    if (!userId)
-      return res
-        .status(400)
-        .send({ status: false, message: "please provide userId" });
 
-    if (!isValidObjectId(userId)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "please provide valid userId" });
-    }
-    const validUserId = await userModel.findOne({
-      _id: userId,
-      isDeleted: false,
-    });
-    if (!validUserId)
-      return res
-        .status(404)
-        .send({ status: false, message: "no user exist in database" });
     if (!ISBN)
       return res
         .status(400)
@@ -211,22 +189,8 @@ const updateBook = async function (req, res) {
   try {
     const bookId = req.params.bookId;
 
-    if (bookId) {
-      if (!isValidObjectId(bookId)) {
-        return res
-          .status(400)
-          .send({ status: false, message: "Provide valid bookId" });
-      }
-    }
-
     const { title, excerpt, releaseDate, ISBN } = req.body;
-    
-    const bookFromDb = await bookModel.findById(bookId);
-    if (!bookFromDb) {
-      return res
-        .status(404)
-        .send({ status: false, message: "Book doesn't exist." });
-    }
+
     if (!title || !excerpt || !releaseDate || !ISBN) {
       return res.status(400).send({
         status: false,
@@ -260,19 +224,6 @@ const updateBook = async function (req, res) {
 const delBook = async function (req, res) {
   try {
     const bookId = req.params.bookId;
-
-    if (bookId) {
-      if (!isValidObjectId(bookId)) {
-        return res
-          .status(400)
-          .send({ status: false, message: "Provide valid bookId" });
-      }
-    }
-
-    const checkBook = await bookModel.findOne({ _id: bookId, isDeleted: true });
-
-    if (checkBook)
-      return res.status(404).send({ status: false, message: "Book not found" });
 
     const findBook = await bookModel.findOneAndUpdate(
       { _id: bookId, isDeleted: false },

@@ -5,17 +5,17 @@ const router = express.Router();
 const userController= require("../controllers/userController");
 const bookController = require("../controllers/bookController")
 const reviewController = require("../controllers/reviewController")
-
+const middleware = require ("../middleware/auth")
 
 ///////////////// [ ALL API's HERE ] /////////////////
 router.post('/register',userController.createUser)
 router.post('/login',userController.loginUser)
 
-router.post('/books',bookController.createBook)
-router.get ('/books',bookController.getBook)
-router.get ('/books/:bookId',bookController.getBookByPathParam)
-router.put('/books/:bookId',bookController.updateBook)
-router.delete("/books/:bookId",bookController.delBook)
+router.post('/books',middleware.authenticUser,middleware.authorizedUserByBody,bookController.createBook)
+router.get ('/books',middleware.authenticUser,bookController.getBook)
+router.get ('/books/:bookId',middleware.authenticUser,bookController.getBookByPathParam)
+router.put('/books/:bookId',middleware.authenticUser,middleware.authorizedUserByParam,bookController.updateBook)
+router.delete("/books/:bookId",middleware.authenticUser,middleware.authorizedUserByParam,bookController.delBook)
 
 router.post("/books/:bookId/review",reviewController.createReview)
 router.put('/books/:bookId/review/:reviewId',reviewController.updateReview)

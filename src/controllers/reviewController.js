@@ -61,79 +61,38 @@ const createReview = async function (req, res) {
   }
 };
 
-
-
-////////////////////////////////////Update API ///////////////////////////
-const updateReview = async function (req, res) {
+// Update API
+const updateBook = async function (req, res) {
   try {
-    const { bookId, reviewId } = req.params;
+    const bookId = req.params.bookId;
 
-    // Validation starts
-    if (!isValidObjectId(bookId)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "this is not a valid bookId" });
-    }
+    const { title, excerpt, releaseDate, ISBN } = req.body;
 
-    // Validation starts
-    if (!isValidObjectId(reviewId)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "this is not a valid reviewId" });
-    }
-
-    //check the path param bookid in bookmodel
-    const checkBook = await bookModel.findOne({
-      _id: bookId,
-      isDeleted: false,
-    });
-
-    if (!checkBook)
-      return res
-        .status(404)
-        .send({ status: false, message: "book is not exist" });
-
-    // check the path param review id in review model
-    const checkReview = await reviewModel.findOne({
-      _id: reviewId,
-      bookId: bookId,
-      isDeleted: false,
-    });
-    if (!checkReview)
-      return res
-        .status(404)
-        .send({ status: false, message: "review is not exist" });
- // check body is empty
-    const data = req.body;
-    const { rating, reviewedBy } = data;
-
-    if (!rating) return res.status(400).send({status:false, message:"please provide rating "})
-    if (!reviewedBy) return res.status(400).send({status:false, message:"please provide reviewedBy "})
-   
-    if (Object.keys(data).length == 0)
-      return res
-        .status(400)
-        .send({ status: false, message: "please provide the data" });
-
-    // check the rating between 1 to 5
-
-    if (!((rating > 0) && ( rating < 6)))
+    if (!title || !excerpt || !releaseDate || !ISBN) {
       return res.status(400).send({
         status: false,
-        message: "ratings should be minimum one and maximum five",
+        message: "please enter full details to update book",
       });
+    }
 
-    // updating the data using provideid in req body
+    const dbData = await bookModel.find({
+      $and: [{ title: title, ISBN: ISBN, isDeleted: false }],
+    });
+    if (dbData.length != 0) {
+      return res.status(409).send({
+        status: false,
+        msg: "Title and ISBN should be unique, hence can't update.",
+      });
+    }
+    const bookData = await bookModel.findOneAndUpdate(
+      { _id: bookId, isDeleted: false },
+      { title: title, excerpt: excerpt, releasedAt: releaseDate, ISBN: ISBN },
+      { new: true }
+    );
 
-    const update = await reviewModel.findByIdAndUpdate({ _id: reviewId },data).select({__v:0,isDeleted:0,createdAt:0,updatedAt:0})
-    const bookData = await bookModel.findById(bookId).select({__v:0,ISBN:0})
-    bookData._doc.reviewData = update
-
-    return res
-      .status(200)
-      .send({ status: true, message: "success", data: bookData });
-
-
+    res
+      .status(201)
+      .send({ status: true, message: "details updated", data: bookData });
   } catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }

@@ -3,10 +3,6 @@ const bookModel = require("../models/BooksModel");
 const userModel = require("../models/userModel");
 const reviewModel = require("../models/reviewModel");
 
-const isValidObjectId = function (ObjectId) {
-  return mongoose.Types.ObjectId.isValid(ObjectId);
-};
-
 const createBook = async function (req, res) {
   try {
     const data = req.body;
@@ -117,7 +113,7 @@ const getBook = async function (req, res) {
     //// check validaion of userId///////////
     const userId = queryDetails.userId;
     if (userId) {
-      if (!isValidObjectId(userId)) {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
         return res
           .status(400)
           .send({ status: false, message: "Provide valid userId" });
@@ -156,21 +152,21 @@ const getBookByPathParam = async function (req, res) {
     const bookId = req.params.bookId;
 
     if (bookId) {
-      if (!isValidObjectId(bookId)) {
+      if (!mongoose.Types.ObjectId.isValid(bookId)) {
         return res
           .status(400)
           .send({ status: false, message: "Provide valid bookId" });
       }
     }
 
-    const bookRequested = await bookModel.findById(bookId);
+    const bookRequested = await bookModel.findOne({_id:bookId,isDeleted:false});
 
     if (!bookRequested)
       return res
         .status(404)
         .send({ status: false, message: "no book with this id found" });
 
-    const reviewsForBook = await reviewModel.find({ bookId: bookId });
+    const reviewsForBook = await reviewModel.find({ bookId: bookId, isDeleted:false }).select(["-createdAt", "-updatedAt", "-__v", "-isDeleted"]);
 
     const newdata = {
       ...bookRequested._doc,
@@ -215,7 +211,7 @@ const updateBook = async function (req, res) {
 
     res
       .status(201)
-      .send({ status: true, message: "details updated", data: bookData });
+      .send({ status: true, message: "Success", data: bookData });
   } catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }

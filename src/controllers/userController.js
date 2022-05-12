@@ -108,6 +108,8 @@ const createUser = async function (req, res) {
   }
 };
 
+
+/////////////////  User Login   //////////////////
 const loginUser = async function (req, res) {
   try {
     const data = req.body;

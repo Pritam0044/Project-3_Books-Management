@@ -10,7 +10,7 @@ const isValidObjectId = function (ObjectId) {
 const createReview = async function (req, res) {
   try {
     const bookId = req.params.bookId;
-    if (!mongoose.Types.ObjectId.isValid(bookId)) {
+    if (!isValidObjectId(bookId)) {
       return res
         .status(400)
         .send({ status: false, message: "Provide valid bookId" });
@@ -20,11 +20,17 @@ const createReview = async function (req, res) {
       return res.status(404).send({ status: false, message: "no book found" });
 
     const reviewDetail = req.body;
-    const { reviewedBy, reviewedAt, rating, review } = reviewDetail;
-    if (!reviewedBy || !reviewedAt || !rating)
+    const { reviewedBy, rating, review } = reviewDetail;
+    if (!reviewedBy || !rating)
       return res
         .status(400)
         .send({ status: false, message: `Full review Detail is required` });
+
+    if (!((rating > 0) && ( rating < 6)))
+      return res.status(400).send({
+        status: false,
+        message: "ratings should be minimum one and maximum five",
+      });    
 
     const reviewDetail1 = {
       reviewedBy,
@@ -36,20 +42,26 @@ const createReview = async function (req, res) {
 
     const reviewUpdate = await reviewModel.create(reviewDetail1);
     const reviewUpdate1 = await reviewModel
-      .find(reviewDetail1)
+      .find({bookId:bookId,isDeleted:false})
       .select(["-createdAt", "-updatedAt", "-__v", "-isDeleted"]);
     // increment by 1 is added every time in reviews
 
-    const bookId1 = reviewUpdate.bookId;
-    const finalUpdate = await bookModel
-      .find({ _id: bookId1 })
-      .updateOne({ $inc: { reviews: +1 } }); // this phase is also working
 
-    res.status(200).send({ status: true, data: reviewUpdate1 });
+    const finalUpdate = await bookModel
+      .find({ _id: bookId })
+      .updateOne({ $inc: { reviews: +1 } }); 
+
+      const bookData = await bookModel.findById(bookId).select({__v:0,ISBN:0})
+      bookData._doc.reviewData = reviewUpdate1
+
+
+    res.status(201).send({ status: true, data: bookData });
   } catch (error) {
     res.status(500).send({ status: false, error: error.message });
   }
 };
+
+
 
 ////////////////////////////////////Update API ///////////////////////////
 const updateReview = async function (req, res) {
@@ -78,8 +90,8 @@ const updateReview = async function (req, res) {
 
     if (!checkBook)
       return res
-        .status(400)
-        .send({ status: false, message: "book does not exist" });
+        .status(404)
+        .send({ status: false, message: "book is not exist" });
 
     // check the path param review id in review model
     const checkReview = await reviewModel.findOne({
@@ -89,12 +101,11 @@ const updateReview = async function (req, res) {
     });
     if (!checkReview)
       return res
-        .status(400)
-        .send({ status: false, message: "review does not exist" });
-
-    // check body is empty
-    let data = req.body;
-    let { rating, reviewedBy } = data;
+        .status(404)
+        .send({ status: false, message: "review is not exist" });
+ // check body is empty
+    const data = req.body;
+    const { rating, reviewedBy } = data;
 
     if (Object.keys(data).length == 0)
       return res
@@ -140,14 +151,11 @@ const updateReview = async function (req, res) {
 };
 
 /////////////////  Delete API  ///////////////////
-const deleteReviews = async function (req, res) {
+const deleteReviews = async function (req,res){
   try {
-    let { bookId, reviewId } = req.params;
+    const { bookId, reviewId } = req.params;
 
-    if (
-      !mongoose.isValidObjectId(bookId) ||
-      !mongoose.isValidObjectId(reviewId)
-    ) {
+    if ( ! isValidObjectId(bookId) ||! isValidObjectId(reviewId)) {
       return res
         .status(400)
         .send({ status: false, message: "Please enter valid Ids" });

@@ -70,7 +70,7 @@ const createBook = async function (req, res) {
     const saveData = await bookModel.create(data);
     return res.status(201).send({
       status: true,
-      message: "book created succesfully",
+      message: "Success",
       data: saveData,
     });
   } catch (err) {
@@ -229,7 +229,7 @@ const delBook = async function (req, res) {
     return res.status(200).send({
       status: true,
       message: "Success",
-      data: "this book is deleted now",
+      data: "This book is deleted now",
     });
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message });

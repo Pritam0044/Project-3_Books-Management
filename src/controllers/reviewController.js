@@ -26,7 +26,7 @@ const createReview = async function (req, res) {
         .status(400)
         .send({ status: false, message: `rating is required` });
 
-    if (!((rating > 0) && ( rating < 6)))
+        if (rating <1  || rating > 5)
       return res.status(400).send({
         status: false,
         message: "ratings should be minimum one and maximum five",
@@ -117,7 +117,7 @@ const updateReview = async function (req, res) {
 
     // check the rating between 1 to 5
 
-    if (!((rating > 0) && ( rating < 6)))
+    if (rating <1  || rating > 5)
       return res.status(400).send({
         status: false,
         message: "ratings should be minimum one and maximum five",

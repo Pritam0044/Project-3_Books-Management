@@ -194,15 +194,21 @@ const updateBook = async function (req, res) {
       });
     }
 
-    const dbData = await bookModel.find({
-      $and: [{ title: title, ISBN: ISBN, isDeleted: false }],
-    });
-    if (dbData.length != 0) {
-      return res.status(409).send({
-        status: false,
-        msg: "Title and ISBN should be unique, hence can't update.",
-      });
-    }
+
+    const checkTitle = await bookModel.findOne({title: title, isDeleted: false})
+    if(checkTitle)
+    return res.status(409).send({
+      status: false,
+      msg: "Book with this Title already exists",
+    })
+    
+    const checkISBN = await bookModel.findOne({ISBN: ISBN, isDeleted: false})
+    if(checkISBN)
+    return res.status(409).send({
+      status: false,
+      msg: "Book with this ISBN already exists",
+    })
+
     const bookData = await bookModel.findOneAndUpdate(
       { _id: bookId, isDeleted: false },
       { title: title, excerpt: excerpt, releasedAt: releaseDate, ISBN: ISBN },

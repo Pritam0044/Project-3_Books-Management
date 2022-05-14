@@ -8,18 +8,17 @@ const authenticUser = function (req, res, next) {
   try {
 
    const token = req.headers["x-api-key"];
-    if (!token) {
+    if (token) {
+      jwt.verify(token, "Books Management", function (error, decodedToken) { 
+        if (error) {
+          return res.status(401).send({ status: false, message: "token invalid" });
+        }
+        req.userId= decodedToken.userId
+        next();
+      });
+    }else{
       return res.status(404).send({ status: false, message: "Token must be present" });
     }
-
-    jwt.verify(token, "Books Management", function (error, decodedToken) { 
-      if (error) {
-        return res.status(401).send({ status: false, message: "token invalid" });
-      }
-      req.userId= decodedToken.userId
-      next();
-    });
-
   } 
   catch (err) {
     res.status(500).send({ status: false, message: err.message });
@@ -33,37 +32,39 @@ const authorizedUserByBody = async function (req, res, next) {
 
     const userId = req.body.userId
     
-    if (!userId)
+    if (userId){
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).send({ status: false, message: "Provide valid authorId" });
+    }
+    const validUserId = await userModel.findOne({
+      _id: userId,
+      isDeleted: false,
+    });
+    if (!validUserId)
+      return res
+        .status(404)
+        .send({ status: false, message: "no user exist in database" });
+        
+    const userLoggedIn = req.userId;
+    if (userId != userLoggedIn) {
+      return res.status(403).send({status: false,message: "You are not authorised for this request"});
+    } 
+    else {
+     return next();
+    }
+
+    }else{
       return res
         .status(400)
-        .send({ status: false, message: "please provide userId" });
-  
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).send({ status: false, message: "Provide valid authorId" });
-      }
-      const validUserId = await userModel.findOne({
-        _id: userId,
-        isDeleted: false,
-      });
-      if (!validUserId)
-        return res
-          .status(404)
-          .send({ status: false, message: "no user exist in database" });
-          
-      const userLoggedIn = req.userId;
-      if (userId != userLoggedIn) {
-        return res.status(403).send({status: false,message: "You are not authorised for this request"});
-      } 
-      else {
-       return next();
-      }
-
+        .send({ status: false, message: "please provide userId" });}
     
 } 
 catch (err) {
   res.status(500).send({ status: false, message: err.message });
 }
 };
+
+
 
 const authorizedUserByParam = async function (req, res, next) {  
   try {
@@ -75,10 +76,15 @@ const authorizedUserByParam = async function (req, res, next) {
 
       const findBook = await bookModel.findOne({_id:bookId,isDeleted:false});
       if (!findBook)
-      return res.status(404).send({ status: false, message: "No book with this Id" });
+      return res.status(404).send({ status: false, message: "No book with this Id is present." });
 
       const findUserId = findBook.userId;
+      // console.log(findUserId)
+
       const userLoggedIn = req.userId;
+      // console.log(userLoggedIn)
+
+
       if (findUserId != userLoggedIn) {
         return res.status(403).send({status: false,message: "You are not authorised for this request"});
       } 

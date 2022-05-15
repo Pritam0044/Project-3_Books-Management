@@ -184,30 +184,39 @@ const getBookByPathParam = async function (req, res) {
 const updateBook = async function (req, res) {
   try {
     const bookId = req.params.bookId;
-
-    const { title, excerpt, releaseDate, ISBN } = req.body;
-
-    if (!title || !excerpt || !releaseDate || !ISBN) {
-      return res.status(400).send({
-        status: false,
-        message: "please enter full details to update book",
+    const body = req.body;
+    const { title, excerpt, releaseDate, ISBN } = body;
+    if (title) {
+      const checkTitle = await bookModel.findOne({
+        title: title,
+        isDeleted: false,
       });
+      if (checkTitle)
+        return res
+          .status(409)
+          .send({
+            status: false,
+            message: "Book with this Title already exists",
+          });
     }
-
-
-    const checkTitle = await bookModel.findOne({title: title, isDeleted: false})
-    if(checkTitle)
-    return res.status(409).send({
-      status: false,
-      msg: "Book with this Title already exists",
-    })
-    
-    const checkISBN = await bookModel.findOne({ISBN: ISBN, isDeleted: false})
-    if(checkISBN)
-    return res.status(409).send({
-      status: false,
-      msg: "Book with this ISBN already exists",
-    })
+    if (ISBN) {
+      const ISBNregex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/;
+      if (!ISBNregex.test(ISBN))
+        return res
+          .status(400)
+          .send({ status: false, message: "please provide valid ISBN" });
+      const checkISBN = await bookModel.findOne({
+        ISBN: ISBN,
+        isDeleted: false,
+      });
+      if (checkISBN)
+        return res
+          .status(409)
+          .send({
+            status: false,
+            message: "Book with this ISBN already exists",
+          });
+    }
 
     const bookData = await bookModel.findOneAndUpdate(
       { _id: bookId, isDeleted: false },
@@ -217,7 +226,7 @@ const updateBook = async function (req, res) {
 
     res
       .status(201)
-      .send({ status: true, message: "Success", data: bookData });
+      .send({ status: true, message: "details updated", data: bookData });
   } catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }

@@ -226,7 +226,7 @@ const updateBook = async function (req, res) {
 
     res
       .status(201)
-      .send({ status: true, message: "details updated", data: bookData });
+      .send({ status: true, message: "Success", data: bookData });
   } catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }

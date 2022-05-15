@@ -81,7 +81,6 @@ const updateReview = async function (req, res) {
         .send({ status: false, message: "this is not a valid reviewId" });
     }
 
-    
     //check the path param bookid in bookmodel
     const checkBook = await bookModel.findOne({
       _id: bookId,
@@ -105,15 +104,14 @@ const updateReview = async function (req, res) {
         .send({ status: false, message: "review is not exist" });
  // check body is empty
     const data = req.body;
-    const { rating, reviewedBy } = data;
 
-    if (!rating) return res.status(400).send({status:false, message:"please provide rating "})
-    if (!reviewedBy) return res.status(400).send({status:false, message:"please provide reviewedBy "})
-   
     if (Object.keys(data).length == 0)
-      return res
-        .status(400)
-        .send({ status: false, message: "please provide the data" });
+    return res
+      .status(400)
+      .send({ status: false, message: "please provide the data" });
+
+    const { rating } = data;
+
 
     // check the rating between 1 to 5
 
@@ -125,9 +123,11 @@ const updateReview = async function (req, res) {
 
     // updating the data using provideid in req body
 
-    const update = await reviewModel.findByIdAndUpdate({ _id: reviewId },data, {new:true}).select({__v:0,isDeleted:0,createdAt:0,updatedAt:0})
+    const update = await reviewModel.findByIdAndUpdate( reviewId , data ,{new:true}).select(["-createdAt", "-updatedAt", "-__v", "-isDeleted"])
+
     const bookData = await bookModel.findById(bookId).select({__v:0,ISBN:0})
-    bookData._doc.reviewData = update
+
+    bookData._doc.reviewData = [update]
 
     return res
       .status(200)

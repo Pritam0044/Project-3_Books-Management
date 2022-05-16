@@ -21,12 +21,12 @@ const createReview = async function (req, res) {
 
     const reviewDetail = req.body;
     const { reviewedBy, rating, review } = reviewDetail;
-    if (!reviewedBy || !rating)
+    if (!rating)
       return res
         .status(400)
-        .send({ status: false, message: `Full review Detail is required` });
+        .send({ status: false, message: `rating is required` });
 
-    if (!((rating > 0) && ( rating < 6)))
+        if (rating <1  || rating > 5)
       return res.status(400).send({
         status: false,
         message: "ratings should be minimum one and maximum five",
@@ -42,14 +42,14 @@ const createReview = async function (req, res) {
 
     const reviewUpdate = await reviewModel.create(reviewDetail1);
     const reviewUpdate1 = await reviewModel
-      .find({bookId:bookId,isDeleted:false})
+      .findOne({bookId:bookId, _id:reviewUpdate._id, isDeleted:false})
       .select(["-createdAt", "-updatedAt", "-__v", "-isDeleted"]);
     // increment by 1 is added every time in reviews
 
 
     const finalUpdate = await bookModel
       .find({ _id: bookId })
-      .updateOne({ $inc: { reviews: +1 } }); 
+      .updateOne({ $inc: { reviews: 1 } }); 
 
       const bookData = await bookModel.findById(bookId).select({__v:0,ISBN:0})
       bookData._doc.reviewData = reviewUpdate1
@@ -60,7 +60,6 @@ const createReview = async function (req, res) {
     res.status(500).send({ status: false, error: error.message });
   }
 };
-
 
 
 ////////////////////////////////////Update API ///////////////////////////
@@ -82,6 +81,7 @@ const updateReview = async function (req, res) {
         .send({ status: false, message: "this is not a valid reviewId" });
     }
 
+    
     //check the path param bookid in bookmodel
     const checkBook = await bookModel.findOne({
       _id: bookId,
@@ -128,7 +128,7 @@ const updateReview = async function (req, res) {
 
     // check the rating between 1 to 5
 
-    if (!(rating > 0 && rating < 6))
+    if (rating <1  || rating > 5)
       return res.status(400).send({
         status: false,
         message: "ratings should be minimum 1 and maximum 5",
@@ -136,11 +136,9 @@ const updateReview = async function (req, res) {
 
     // updating the data using provideid in req body
 
-    let update = await reviewModel
-      .findByIdAndUpdate({ _id: reviewId }, data, { new: true })
-      .select({ __v: 0, isDeleted: 0, createdAt: 0, updatedAt: 0 });
-    let bookData = await bookModel.findById(bookId).select({ __v: 0, ISBN: 0 });
-    bookData._doc.reviewData = update;
+    const update = await reviewModel.findByIdAndUpdate({ _id: reviewId },data, {new:true}).select({__v:0,isDeleted:0,createdAt:0,updatedAt:0})
+    const bookData = await bookModel.findById(bookId).select({__v:0,ISBN:0})
+    bookData._doc.reviewData = update
 
     return res
       .status(200)
@@ -149,6 +147,8 @@ const updateReview = async function (req, res) {
     res.status(500).send({ status: false, message: error.message });
   }
 };
+
+
 
 /////////////////  Delete API  ///////////////////
 const deleteReviews = async function (req,res){

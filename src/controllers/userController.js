@@ -25,7 +25,7 @@ const createUser = async function (req, res) {
     // Checking if name is sent through body or not//
     if (name) {
           // Checking if name is correct name or not i.e. no digit allowed//
-      if (!/^(([a-zA-Z]+)*([\.])*([\s]))?(([a-zA-Z]+)([\s])([a-zA-Z]+))*$/.test(name)) {
+      if (!/^([a-zA-Z]+)(( )([a-zA-Z]+))?$/.test(name)) {
       return res
         .status(400)
         .send({ status: false, message: "Please enter correct name." });
@@ -68,7 +68,7 @@ const createUser = async function (req, res) {
     // Checking if email is sent through body or not//
     if (email) { 
           // Checking if email is valid or not //
-      if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
+      if (!/^(\w+)@(\w+).(([\w]{2,3})*(.[\w]{2,3})?)$/.test(email)) {
       return res
         .status(400)
         .send({ status: false, message: "Please enter correct email." });
@@ -103,10 +103,6 @@ const createUser = async function (req, res) {
         .send({ status: false, message: "Please provide password" });
     }
 
-
-
-    
-   
     
     if (address){
       if(!address.street || !address.city || !address.pincode){return res.status(400).send({status:false, message:"Please provide full address."})}
@@ -133,10 +129,10 @@ const loginUser = async function (req, res) {
     const { email, password } = data;
 
     // Checking if email is sent through body or not//
-    if (email){  if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email)) {
+    if (email){  if (!/^(\w+)@(\w+).(([\w]{2,3})*(.[\w]{2,3})?)$/.test(email)) {
       return res
         .status(400)
-        .send({ status: false, message: "Please enter correct email." });
+        .send({ status: false, message: "Please enter correct email" });
     }}
     else
       {return res
@@ -177,10 +173,10 @@ const loginUser = async function (req, res) {
       "Books Management",
       { expiresIn: "1d" }
     );
- 
+    // res.setHeader("user_token", token)
     return res
-      .status(201)
-      .send({ Status: true, message: "Success", data: token });
+      .status(200)
+      .send({ status: true, data: {token:token} });
   }
    catch (error) {
     res.status(500).send({ status: false, message: error.message });

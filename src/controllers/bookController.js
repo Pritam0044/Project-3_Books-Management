@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bookModel = require("../models/BooksModel");
-const userModel = require("../models/userModel");
 const reviewModel = require("../models/reviewModel");
 
 const createBook = async function (req, res) {
@@ -70,7 +69,7 @@ const createBook = async function (req, res) {
     return res.status(201).send({
       status: true,
       message: "Success",
-      data: saveData,
+      data: savedDetails,
     });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
@@ -221,7 +220,7 @@ const updateBook = async function (req, res) {
     );
 
     res
-      .status(201)
+      .status(200)
       .send({ status: true, message: "Success", data: bookData });
   } catch (error) {
     res.status(500).send({ status: false, message: error.message });
@@ -235,7 +234,7 @@ const delBook = async function (req, res) {
     const bookId = req.params.bookId;
 
     if (bookId) {
-      if (!isValidObjectId(bookId)) {
+      if (!mongoose.isValidObjectId(bookId)) {
         return res
           .status(400)
           .send({ status: false, message: "Provide valid bookId" });

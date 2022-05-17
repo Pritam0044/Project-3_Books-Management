@@ -48,7 +48,7 @@ const createReview = async function (req, res) {
     // increment by 1 is added every time in reviews
 
 
-    const finalUpdate = await bookModel
+      await bookModel
       .find({ _id: bookId })
       .updateOne({ $inc: { reviews: 1 } }); 
 
@@ -91,7 +91,7 @@ const updateReview = async function (req, res) {
     if (!checkBook)
       return res
         .status(404)
-        .send({ status: false, message: "book is not exist" });
+        .send({ status: false, message: "book does not exist" });
 
     // check the path param review id in review model
     const checkReview = await reviewModel.findOne({

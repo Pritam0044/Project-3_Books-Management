@@ -114,11 +114,11 @@ const createUser = async function (req, res) {
       else {return res.status(400).send(({status:false, message:"Please provide address."}))}
   
     // creation of new document in db//
-    // const userCreated = await userModel.create(data);
+    const userCreated = await userModel.create(data);
     res.status(201).send({
       status: true,
       message: "Success",
-      data: "userCreated",
+      data: userCreated,
     });
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message });

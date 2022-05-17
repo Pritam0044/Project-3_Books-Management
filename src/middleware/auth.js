@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
-const userModel = require("../models/usesrModel")
 const bookModel = require("../models/BooksModel");
 const  mongoose = require("mongoose");
+const userModel = require("../models/userModel");
 
 ///////////////// [ ALL AUTHENTICATION LOGIC HERE ] /////////////////
 const authenticUser = function (req, res, next) {
@@ -28,8 +28,28 @@ const authenticUser = function (req, res, next) {
 
 
 ///////////////// [ ALL AUTHORISATION LOGIC HERE ] /////////////////
-const authorizedUserByBody = async function (req, res, next) {
+const authorizedUser = async function (req, res, next) {
   try {
+
+    const bookId = req.params.bookId;
+    if (bookId) {
+      if (!mongoose.Types.ObjectId.isValid(bookId)) {
+        return res.status(400).send({ status: false, message: "Provide valid bookId" });
+      }
+
+      const findBook = await bookModel.findOne({_id:bookId,isDeleted:false});
+      if (!findBook)
+      return res.status(404).send({ status: false, message: "No book with this Id" });
+
+      const findUserId = findBook.userId;
+      const userLoggedIn = req.userId;
+      if (findUserId != userLoggedIn) {
+        return res.status(403).send({status: false,message: "You are not authorised for this request"});
+      } 
+      else {
+        return next();
+      }
+    }
 
     const userId = req.body.userId
     
@@ -65,37 +85,7 @@ catch (err) {
 }
 };
 
-const authorizedUserByParam = async function (req, res, next) {  
-  try {
-    const bookId = req.params.bookId;
-    if (bookId) {
-      if (!mongoose.Types.ObjectId.isValid(bookId)) {
-        return res.status(400).send({ status: false, message: "Provide valid bookId" });
-      }
-
-      const findBook = await bookModel.findOne({_id:bookId,isDeleted:false});
-      if (!findBook)
-      return res.status(404).send({ status: false, message: "No book with this Id" });
-
-      const findUserId = findBook.userId;
-      const userLoggedIn = req.userId;
-      if (findUserId != userLoggedIn) {
-        return res.status(403).send({status: false,message: "You are not authorised for this request"});
-      } 
-      else {
-        return next();
-      }
-    }
-    
-    return res.status(400).send({status:false,message:" bookId is required"})   
-
-  } 
-  catch (err) {
-    res.status(500).send({ status: false, message: err.message });
-  }
-};
 
 ///////////////// [ EXPRORTED MIDDLEWARE ] /////////////////
 module.exports.authenticUser = authenticUser;
-module.exports.authorizedUserByBody = authorizedUserByBody;
-module.exports.authorizedUserByParam = authorizedUserByParam;
+module.exports.authorizedUser = authorizedUser;

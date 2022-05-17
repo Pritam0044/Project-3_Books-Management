@@ -146,44 +146,6 @@ const getBook = async function (req, res) {
 };
 
 
-
-////////////////////////////////  get API for book with Query param   ///////////////////
-// const getBook = async function (req, res) {
-//   try {
-//     const queryDetails = req.query;
-
-//     if (Object.keys(queryDetails).length == 0) {
-//       const bookFetched = await bookModel.find({ isDeleted: false }).select({ISBN: 0,subcategory: 0,isDeleted: 0,createdAt: 0,updatedAt: 0,__v: 0,}).sort({ title: 1 });
-
-//       if (bookFetched.length == 0){ return res.status(404).send({ status: false, message: "No book found" });
-//     }else
-//       {return res.status(200).send({ status: true, message: "Book List", data: bookFetched });
-//       }}
-    
-
-//     //Adding new key in queryDetails object//
-//     queryDetails.isDeleted = false;
-
-//     // check validaion of userId//
-//     const userId = queryDetails.userId;
-//     if (userId) {
-//       if (!mongoose.Types.ObjectId.isValid(userId)) {return res.status(400).send({ status: false, message: "Provide valid userId" });}
-//     }
-
-//     //finding books which satisfies the given queries//
-//     const specificBooks = await bookModel.find(queryDetails).select({ISBN: 0,subcategory: 0,isDeleted: 0,createdAt: 0,updatedAt: 0,__v: 0,}).sort({ title: 1 });
-
-//     if (specificBooks.length == 0) {return res.status(404).send({ status: false, message: "No books found with given queries" });
-//     }else{
-//       return res
-//       .status(200)
-//       .send({ status: true, message: "Book List", data: specificBooks });
-//   }
-// } catch (error) {
-//     return res.status(500).send({ status: false, message: error.message });
-//   }
-// };
-
 //////////////////////  get API for book with Path param   /////////////////
 const getBookByPathParam = async function (req, res) {
   try {
@@ -218,30 +180,39 @@ const getBookByPathParam = async function (req, res) {
 const updateBook = async function (req, res) {
   try {
     const bookId = req.params.bookId;
-
-    const { title, excerpt, releaseDate, ISBN } = req.body;
-
-    if ( !title || !excerpt || !releaseDate || !ISBN) {
-      return res.status(400).send({
-        status: false,
-        message: "please enter full details to update book",
+    const body = req.body;
+    const { title, excerpt, releaseDate, ISBN } = body;
+    if (title) {
+      const checkTitle = await bookModel.findOne({
+        title: title,
+        isDeleted: false,
       });
+      if (checkTitle)
+        return res
+          .status(409)
+          .send({
+            status: false,
+            message: "Book with this Title already exists",
+          });
     }
-
-
-    const checkTitle = await bookModel.findOne({title: title, isDeleted: false})
-    if(checkTitle)
-    return res.status(409).send({
-      status: false,
-      msg: "Book with this Title already exists",
-    })
-    
-    const checkISBN = await bookModel.findOne({ISBN: ISBN, isDeleted: false})
-    if(checkISBN)
-    return res.status(409).send({
-      status: false,
-      msg: "Book with this ISBN already exists",
-    })
+    if (ISBN) {
+      const ISBNregex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/;
+      if (!ISBNregex.test(ISBN))
+        return res
+          .status(400)
+          .send({ status: false, message: "please provide valid ISBN" });
+      const checkISBN = await bookModel.findOne({
+        ISBN: ISBN,
+        isDeleted: false,
+      });
+      if (checkISBN)
+        return res
+          .status(409)
+          .send({
+            status: false,
+            message: "Book with this ISBN already exists",
+          });
+    }
 
     const bookData = await bookModel.findOneAndUpdate(
       { _id: bookId, isDeleted: false },

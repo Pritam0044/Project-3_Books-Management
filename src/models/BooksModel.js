@@ -12,6 +12,7 @@ const bookSchema = new mongoose.Schema(
     },
     excerpt: { type: String, required: "excerpt is required", trim: true },
     userId: { type: ObjectId, required: "userId is required", ref: "User" },
+    bookCover:{type:String, required: true, trim:true},                   //////------AWS
     ISBN: { type: String, required: "ISBN is required", unique: true },
     category: { type: String, required: "category is required" },
     subcategory: { type: [String], required: "subcategory is required" ,trim:true},

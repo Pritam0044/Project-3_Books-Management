@@ -1,10 +1,14 @@
 const mongoose = require("mongoose");
 const bookModel = require("../models/BooksModel");
 const reviewModel = require("../models/reviewModel");
+const aws= require("aws-sdk")
+
+///////////////////////// [ create book ] //////////////////////
 
 const createBook = async function (req, res) {
   try {
     const data = req.body;
+    // console.log(file, data)
 
     const { title, excerpt, ISBN, category, subcategory, releasedAt } = data;
 
@@ -63,6 +67,55 @@ const createBook = async function (req, res) {
         .status(400)
         .send({ status: false, message: "please provide releasedAt" });}
 
+                  ////////// aws starts from here  /////////////////
+                  
+          aws.config.update({
+            accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
+            secretAccessKey: "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",
+            region: "ap-south-1"
+          })
+
+          let uploadFile= async ( file) =>{
+          return new Promise( function(resolve, reject) {
+            // this function will upload file to aws and return the link
+            let s3= new aws.S3({apiVersion: '2006-03-01'}); // we will be using the s3 service of aws
+
+            var uploadParams= {
+                ACL: "public-read",
+                Bucket: "classroom-training-bucket",  //HERE
+                Key: "pritam/" + file.originalname, //HERE 
+                Body: file.buffer
+            }
+
+
+            s3.upload( uploadParams, function (err, data ){
+                if(err) {
+                    return reject({"error": err.message})
+                }
+                // console.log(data)
+                console.log("file uploaded succesfully")
+                return resolve(data.Location)
+            })
+
+            // let data= await s3.upload( uploadParams)
+            // if( data) return data.Location
+            // else return "there is an error"
+
+          })
+          }
+                  let files = req.files;
+                    if(files && files.length>0){
+                        //upload to s3 and get the uploaded link
+                        // res.send the link back to frontend/postman
+                        let uploadedFileURL= await uploadFile( files[0] )
+                      data.bookCover = uploadedFileURL
+                    }
+                    else{
+                        res.status(400).send({ msg: "No file found" })
+                    }
+                  //////////////
+        // console.log(data)
+
     await bookModel.create(data);
     
     const savedDetails = await bookModel.findOne(data).select({__v:0})
@@ -75,6 +128,23 @@ const createBook = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //get API for book with Query param//
 const getBook = async function (req, res) {

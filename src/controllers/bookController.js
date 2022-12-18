@@ -131,21 +131,6 @@ const createBook = async function (req, res) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //get API for book with Query param//
 const getBook = async function (req, res) {
   try {
